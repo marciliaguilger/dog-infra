@@ -3,6 +3,11 @@ provider "aws" {
   #profile = var.aws_profile
 }
 
+data "aws_s3_bucket_object" "lambda_zip" {
+  bucket = var.lambda_s3_bucket
+  key    = var.lambda_s3_key
+}
+
 resource "aws_iam_role" "lambda_role" {
   name = "lambda-execution-role"
 
