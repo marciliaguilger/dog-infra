@@ -13,7 +13,8 @@ jobs:
   terraform:
     name: 'Terraform Deploy'
     runs-on: ubuntu-latest
-
+    environment: dev
+    
     strategy:
       matrix:
         directory: ['gateway', 'cluster', 'lambda']
