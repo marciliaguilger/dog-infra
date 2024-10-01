@@ -34,6 +34,6 @@ resource "aws_lambda_function" "lambda_authorizer" {
   s3_bucket = var.lambda_s3_bucket
   s3_key    = var.lambda_s3_key
 
-  source_code_hash = filebase64sha256("${path.module}/lambda_authorizer.zip")
+  source_code_hash = data.aws_s3_bucket_object.lambda_zip.etag
 
 }
