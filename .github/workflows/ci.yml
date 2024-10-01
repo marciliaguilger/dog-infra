@@ -14,7 +14,7 @@ jobs:
     name: 'Terraform Deploy'
     runs-on: ubuntu-latest
     environment: dev
-    
+
     strategy:
       matrix:
         directory: ['gateway', 'dog-eks-cluster', 'lambda']
@@ -22,7 +22,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -55,6 +55,13 @@ jobs:
           TF_VAR_lambda_s3_key: ${{ secrets.TF_VAR_LAMBDA_S3_KEY }}
         run: terraform plan -out=tfplan
 
+      - name: Upload tfplan
+        if: success()
+        uses: actions/upload-artifact@v2
+        with:
+          name: tfplan
+          path: ${{ matrix.directory }}/tfplan
+
   deploy:
     name: 'Terraform Apply'
     runs-on: ubuntu-latest
@@ -71,7 +78,13 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1  
+          aws-region: us-east-1
+
+      - name: Download tfplan
+        uses: actions/download-artifact@v2
+        with:
+          name: tfplan
+          path: ${{ matrix.directory }}
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
@@ -85,5 +98,5 @@ jobs:
           TF_VAR_eks_cluster_role_arn: ${{ secrets.TF_VAR_EKS_CLUSTER_ROLE_ARN }}
           TF_VAR_eks_node_group_role_arn: ${{ secrets.TF_VAR_EKS_NODE_GROUP_ROLE_ARN }}
           TF_VAR_lambda_s3_bucket: ${{ secrets.TF_VAR_LAMBDA_S3_BUCKET }}
-          TF_VAR_lambda_s3_key: ${{ secrets.TF_VAR_LAMBDA_S3_KEY }}          
+          TF_VAR_lambda_s3_key: ${{ secrets.TF_VAR_LAMBDA_S3_KEY }}
         run: terraform apply -auto-approve tfplan
