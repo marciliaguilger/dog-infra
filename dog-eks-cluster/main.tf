@@ -21,6 +21,7 @@ resource "aws_subnet" "public_a" {
     "kubernetes.io/role/elb"             = "1"
   }
 }
+
 resource "aws_subnet" "public_b" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.public_subnet_b_cidr
