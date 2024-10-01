@@ -9,3 +9,13 @@ variable "aws_profile" {
   type        = string
   default     = "pos"
 }
+
+variable "lambda_s3_bucket" {
+  description = "lambda s3 bucket"
+  type        = string
+}
+
+variable "lambda_s3_key" {
+  description = "lambda s3 key"
+  type        = string
+}

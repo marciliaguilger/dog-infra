@@ -1,6 +1,6 @@
 provider "aws" {
   region  = var.aws_region
-  profile = var.aws_profile
+  #profile = var.aws_profile
 }
 
 resource "aws_iam_role" "lambda_role" {
@@ -31,11 +31,9 @@ resource "aws_lambda_function" "lambda_authorizer" {
   handler       = "index.handler"
   runtime       = "nodejs16.x"
 
-  source_code_hash = filebase64sha256("../lambda_function.zip")
+  s3_bucket = var.lambda_s3_bucket
+  s3_key    = var.lambda_s3_key
 
-  environment {
-    variables = {
-      foo = "bar"
-    }
-  }
+  source_code_hash = filebase64sha256("${path.module}/lambda.zip")
+
 }
