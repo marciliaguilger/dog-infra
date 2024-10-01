@@ -31,8 +31,6 @@ resource "aws_lambda_function" "lambda_authorizer" {
   handler       = "index.handler"
   runtime       = "nodejs16.x"
 
-  filename      = "lambda_function.zip"  
-
   source_code_hash = filebase64sha256("../lambda_function.zip")
 
   environment {
