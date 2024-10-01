@@ -1,6 +1,6 @@
 provider "aws" {
   region  = var.aws_region
-  profile = var.aws_profile
+  #profile = var.aws_profile
 }
 # Criar a VPC
 resource "aws_vpc" "main" {
@@ -168,9 +168,6 @@ resource "kubernetes_service_account" "dog-service-account" {
   metadata {
     name      = "dog-service-account"
     namespace = "default"
-    annotations = {
-      "eks.amazonaws.com/role-arn" = var.secrets_manager_role_arn
-    }
   }
 }
 

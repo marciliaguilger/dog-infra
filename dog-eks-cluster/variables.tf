@@ -45,10 +45,6 @@ variable "account_id" {
   type        = string
 }
 
-variable "subnet_ids" {
-  description = "List of subnet IDs for the EKS cluster"
-  type        = list(string)
-}
 
 variable "eks_cluster_role_arn" {
   description = "The ARN of the EKS cluster role"
