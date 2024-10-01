@@ -35,6 +35,7 @@ resource "aws_lambda_function" "lambda_authorizer" {
 
   source_code_hash = filebase64sha256("../lambda_function.zip")
 
+
   environment {
     variables = {
       foo = "bar"
