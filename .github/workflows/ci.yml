@@ -53,13 +53,13 @@ jobs:
           TF_VAR_eks_node_group_role_arn: ${{ secrets.TF_VAR_EKS_NODE_GROUP_ROLE_ARN }}
           TF_VAR_lambda_s3_bucket: ${{ secrets.TF_VAR_LAMBDA_S3_BUCKET }}
           TF_VAR_lambda_s3_key: ${{ secrets.TF_VAR_LAMBDA_S3_KEY }}
-        run: terraform plan -out=tfplan
+        run: terraform plan -out=tfplan-${{ matrix.directory }}
 
       - name: Upload tfplan
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: tfplan
+          name: tfplan-${{ matrix.directory }}
           path: ${{ matrix.directory }}/tfplan
 
   deploy:
@@ -83,7 +83,7 @@ jobs:
       - name: Download tfplan
         uses: actions/download-artifact@v4
         with:
-          name: tfplan
+          name: tfplan-${{ matrix.directory }}
           path: ${{ matrix.directory }}
 
       - name: Set up Terraform
@@ -99,4 +99,4 @@ jobs:
           TF_VAR_eks_node_group_role_arn: ${{ secrets.TF_VAR_EKS_NODE_GROUP_ROLE_ARN }}
           TF_VAR_lambda_s3_bucket: ${{ secrets.TF_VAR_LAMBDA_S3_BUCKET }}
           TF_VAR_lambda_s3_key: ${{ secrets.TF_VAR_LAMBDA_S3_KEY }}
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -auto-approve ${{ matrix.directory }}/tfplan
