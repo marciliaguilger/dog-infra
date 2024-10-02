@@ -57,7 +57,7 @@ jobs:
 
       - name: Upload tfplan
         if: success()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: tfplan
           path: ${{ matrix.directory }}/tfplan
@@ -81,7 +81,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Download tfplan
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: tfplan
           path: ${{ matrix.directory }}
