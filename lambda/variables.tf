@@ -10,7 +10,13 @@ variable "aws_profile" {
   default     = "pos"
 }
 
-variable "elb_uri" {
-  description = "Elastic Load Balancer URI"
+variable "lambda_s3_bucket" {
+  description = "lambda s3 bucket"
   type        = string
 }
+
+variable "lambda_s3_key" {
+  description = "lambda s3 key"
+  type        = string
+}
+

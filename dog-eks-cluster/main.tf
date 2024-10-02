@@ -1,6 +1,6 @@
 provider "aws" {
   region  = var.aws_region
-  profile = var.aws_profile
+  #profile = var.aws_profile
 }
 # Criar a VPC
 resource "aws_vpc" "main" {
@@ -21,6 +21,7 @@ resource "aws_subnet" "public_a" {
     "kubernetes.io/role/elb"             = "1"
   }
 }
+
 resource "aws_subnet" "public_b" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.public_subnet_b_cidr
@@ -168,9 +169,6 @@ resource "kubernetes_service_account" "dog-service-account" {
   metadata {
     name      = "dog-service-account"
     namespace = "default"
-    annotations = {
-      "eks.amazonaws.com/role-arn" = var.secrets_manager_role_arn
-    }
   }
 }
 

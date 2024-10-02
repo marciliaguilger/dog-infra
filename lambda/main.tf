@@ -1,6 +1,11 @@
 provider "aws" {
   region  = var.aws_region
-  profile = var.aws_profile
+  #profile = var.aws_profile
+}
+
+data "aws_s3_bucket_object" "lambda_zip" {
+  bucket = var.lambda_s3_bucket
+  key    = var.lambda_s3_key
 }
 
 resource "aws_iam_role" "lambda_role" {
@@ -19,7 +24,6 @@ resource "aws_iam_role" "lambda_role" {
     ]
   })
 }
-
 resource "aws_iam_role_policy_attachment" "lambda_policy" {
   role       = aws_iam_role.lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
@@ -31,13 +35,9 @@ resource "aws_lambda_function" "lambda_authorizer" {
   handler       = "index.handler"
   runtime       = "nodejs16.x"
 
-  filename      = "../lambda_function.zip"  
+  s3_bucket = var.lambda_s3_bucket
+  s3_key    = var.lambda_s3_key
 
-  source_code_hash = filebase64sha256("../lambda_function.zip")
+  source_code_hash = data.aws_s3_bucket_object.lambda_zip.etag
 
-  environment {
-    variables = {
-      foo = "bar"
-    }
-  }
 }
