@@ -9,8 +9,3 @@ variable "aws_profile" {
   type        = string
   default     = "pos"
 }
-
-variable "elb_uri" {
-  description = "Elastic Load Balancer URI"
-  type        = string
-}
