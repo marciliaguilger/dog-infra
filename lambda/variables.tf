@@ -19,4 +19,3 @@ variable "lambda_s3_key" {
   description = "lambda s3 key"
   type        = string
 }
-
