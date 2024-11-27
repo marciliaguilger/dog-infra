@@ -1,6 +1,6 @@
 provider "aws" {
   region  = var.aws_region
-  #profile = var.aws_profile
+  profile = var.aws_profile
 }
 # Criar a VPC
 resource "aws_vpc" "main" {
