@@ -1,6 +1,6 @@
 provider "aws" {
-  region = "us-east-1",
-  profile = "lab"
+  region = "us-east-1"
+  profile = "pos"
 }
 
 data "aws_eks_cluster" "eks_cluster" {
@@ -25,17 +25,11 @@ data "aws_iam_policy_document" "assume_role_policy" {
     }
   }
 }
-
-resource "aws_iam_role" "eks_role" {
-  name               = "EKSServiceAccountRole"
-  assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
-}
-
-resource "aws_iam_role_policy_attachment" "attach_policy" {
-  policy_arn = aws_iam_policy.dynamodb_access.arn
-  role       = aws_iam_role.eks_role.name
-}
-
+#
+#resource "aws_iam_role" "eks_role" {
+#  name               = "EKSServiceAccountRole"
+#  assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
+#}
 
 resource "aws_iam_policy" "dynamodb_access" {
      name        = "DynamoDBAccessPolicy"
@@ -53,21 +47,17 @@ resource "aws_iam_policy" "dynamodb_access" {
              "dynamodb:UpdateItem",
              "dynamodb:DeleteItem"
            ]
-           Resource = "arn:aws:dynamodb:us-east-1:764549915701:table/pagamentos"
+           Resource = "arn:aws:dynamodb:us-east-1:781073238785:table/pagamentos"
          }
        ]
      })
    }
 
-   resource "aws_iam_role" "eks_role" {
-     name               = "EKSServiceAccountRole"
-     assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
-   }
 
-   resource "aws_iam_role_policy_attachment" "attach_policy" {
-     policy_arn = aws_iam_policy.dynamodb_access.arn
-     role       = aws_iam_role.eks_role.name
-   }
+   #resource "aws_iam_role_policy_attachment" "attach_policy" {
+   #  policy_arn = aws_iam_policy.dynamodb_access.arn
+   #  role       = aws_iam_role.eks_role.name
+   #}
 
    provider "kubernetes" {
      host                   = data.aws_eks_cluster.eks_cluster.endpoint
@@ -75,12 +65,13 @@ resource "aws_iam_policy" "dynamodb_access" {
      token                  = data.aws_eks_cluster_auth.eks_cluster.token
    }
 
-   resource "kubernetes_service_account" "dog_service_account" {
-     metadata {
-       name      = "dog-service-account"
-       namespace = "default"
-       annotations = {
-         "eks.amazonaws.com/role-arn" = aws_iam_role.eks_role.arn
-       }
-     }
-   }
+  resource "kubernetes_service_account" "dog_service_account" {
+    metadata {
+      name      = "dog-service-account"
+      namespace = "default"
+      annotations = {
+        "eks.amazonaws.com/role-arn" = var.lab_role
+      }
+    }
+  }
+
