@@ -1,7 +1,7 @@
 AWS_PROFILE="pos"
 
 # Diretório onde os arquivos de configuração do Terraform estão localizados
-TERRAFORM_DIR="/home/marciliadasilvaguilguer/Documentos/repos/pos-tech/fase3/dog-infra/dog-infra/dog-eks-cluster-lab"
+TERRAFORM_DIR="/home/marciliadasilvaguilguer/Documentos/repos/pos-tech/fase3/dog-infra/dog-infra/dog-eks-cluster"
 
 # Exportar o perfil AWS
 export AWS_PROFILE=$AWS_PROFILE

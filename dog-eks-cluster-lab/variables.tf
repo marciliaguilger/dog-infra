@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "aws_profile" {
   description = "The AWS CLI profile to use"
   type        = string
-  default     = "dog"
+  default     = "pos"
 }
 
 variable "vpc_cidr" {
@@ -43,15 +43,38 @@ variable "private_subnet_b_cidr" {
 variable "account_id" {
   description = "The AWS account ID"
   type        = string
+  default        = "781073238785"
 }
 
 
 variable "eks_cluster_role_arn" {
   description = "The ARN of the EKS cluster role"
   type        = string
+  default        = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
+
 }
 
 variable "eks_node_group_role_arn" {
   description = "The ARN of the EKS node group role"
   type        = string
+  default        = "arn:aws:iam::aws:policy/AdministratorAccess"
+
+}
+
+variable "lab_role" {
+  description = "The ARN of the EKS node group role"
+  type        = string
+  default        = "arn:aws:iam::781073238785:role/LabRole"
+}
+
+#variable "dynamodbAccess_role" {
+#  description = "The ARN of the EKS node group role"
+#  type        = string
+#  default        = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+#}
+
+variable "dynamodbAccess_role" {
+  description = "The ARN of the EKS node group role"
+  type        = string
+  default     = "arn:aws:iam::781073238785:role/EMR_EC2_DefaultRole"
 }

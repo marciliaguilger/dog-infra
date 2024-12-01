@@ -118,6 +118,44 @@ resource "aws_route" "private_nat_gateway" {
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.nat.id
 }
+
+
+# Criar Subnet Group para RDS
+resource "aws_db_subnet_group" "rds_subnet_group" {
+  name       = "rds-subnet-group"
+  subnet_ids = [
+    aws_subnet.private_a.id,
+    aws_subnet.private_b.id
+  ]
+
+  tags = {
+    Name = "rds-subnet-group"
+  }
+}
+
+# Criar Security Group para RDS
+resource "aws_security_group" "rds_sg" {
+  vpc_id = aws_vpc.main.id
+
+  ingress {
+    from_port   = 3306            # Porta padrão do MySQL
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr] # Permite comunicação de toda a VPC
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "rds-security-group"
+  }
+}
+
 resource "aws_iam_role_policy_attachment" "eks_policy" {
   role       = "eks-cluster-role"
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
@@ -151,7 +189,7 @@ resource "aws_eks_node_group" "dog_node_group" {
     max_size     = 2
     min_size     = 1
   }
-  instance_types = ["t3.small"]
+  instance_types = ["t3.medium"]
   capacity_type  = "SPOT"
 
 }
@@ -169,6 +207,9 @@ resource "kubernetes_service_account" "dog-service-account" {
   metadata {
     name      = "dog-service-account"
     namespace = "default"
+    annotations = {
+      "eks.amazonaws.com/role-arn" = "arn:aws:iam::764549915701:role/eks-cluster-role"
+    }
   }
 }
 

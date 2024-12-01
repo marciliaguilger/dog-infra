@@ -176,10 +176,11 @@ resource "kubernetes_service_account" "dog-service-account" {
     name      = "dog-service-account"
     namespace = "default"
     annotations = {
-        "eks.amazonaws.com/role-arn" = var.dynamodbAccess_role
+        "eks.amazonaws.com/role-arn" = "arn:aws:iam::781073238785:role/LabRole"
       }
   }
 }
+
 
 #resource "aws_iam_policy" "eks_load_balancer_policy" {
 #  name        = "EKSLoadBalancerPolicy"

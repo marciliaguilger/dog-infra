@@ -1,7 +1,7 @@
 # Configuração do Provedor AWS
 provider "aws" {
   region = "us-east-1"
-  profile = "pos"
+  profile = "dog"
 }
 
 resource "aws_dynamodb_table" "pagamentos" {
