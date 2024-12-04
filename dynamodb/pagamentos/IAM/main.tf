@@ -26,11 +26,6 @@ data "aws_iam_policy_document" "assume_role_policy" {
   }
 }
 
-#resource "aws_iam_role" "eks_role" {
-#  name               = "EKSServiceAccountRole"
-#  assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
-#}
-
 resource "aws_iam_policy" "dynamodb_access" {
      name        = "DynamoDBAccessPolicy"
      description = "Policy to allow EKS access DynamoDB table"
@@ -55,27 +50,12 @@ resource "aws_iam_policy" "dynamodb_access" {
    }
 
 
-   #resource "aws_iam_role_policy_attachment" "attach_policy" {
-   #  policy_arn = aws_iam_policy.dynamodb_access.arn
-   #  role       = aws_iam_role.eks_role.name
-   #}
-
-   provider "kubernetes" {
-     host                   = data.aws_eks_cluster.eks_cluster.endpoint
-     cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks_cluster.certificate_authority[0].data)
-     token                  = data.aws_eks_cluster_auth.eks_cluster.token
-   }
+provider "kubernetes" {
+  host                   = data.aws_eks_cluster.eks_cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks_cluster.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.eks_cluster.token
+}
    
-  #resource "kubernetes_service_account" "dog_service_account" {
-  #  metadata {
-  #    name      = "dog-service-account"
-  #    namespace = "default"
-  #    annotations = {
-  #      "eks.amazonaws.com/role-arn" = var.lab_role
-  #    }
-  #  }
-  #}
-
 
 resource "aws_iam_openid_connect_provider" "oidc" {
   url                   = var.oidc_url

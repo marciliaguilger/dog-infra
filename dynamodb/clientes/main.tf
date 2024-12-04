@@ -1,35 +1,32 @@
 # Configuração do Provedor AWS
 provider "aws" {
-  region = "us-east-1",
-  profile = "lab"
+  region = "us-east-1"
+  profile = "dog"
 }
 
-# Criação da Tabela DynamoDB
-resource "aws_dynamodb_table" "dog-customers" {
-  name           = "dog-customers"
-  billing_mode   = "PROVISIONED"  # Modo de capacidade provisionada
-  read_capacity  = 1  # Capacidade de leitura mínima
-  write_capacity = 1  # Capacidade de escrita mínima
-  hash_key       = "id"
+resource "aws_dynamodb_table" "clientes" {
+    name         = "clientes"  # Nome da tabela
+    billing_mode = "PAY_PER_REQUEST"  # Modo de pagamento, PAY_PER_REQUEST ou PROVISIONED
 
-  attribute {
-    name = "id"
-    type = "S"
-  }
+    # Definição das chaves
+    hash_key  = "id"
+    range_key = "documento"
 
-  attribute {
-    name = "document"
-    type = "S"
-  }
+    attribute {
+      name = "id"
+      type = "S"  # Tipo de dados ('S' para String, 'N' para Number, 'B' para Binary)
+    }
 
-  local_secondary_index {
-    name               = "document_index"
-    range_key          = "document_index"
-    projection_type    = "ALL"  # Pode ser KEYS_ONLY, INCLUDE ou ALL
-  }
+    attribute {
+      name = "documento"
+      type = "S"
+    }
 
-  tags = {
-    Name        = "dog-customers"
-    Environment = "dev"
-  }
+    global_secondary_index {
+      name            = "documento-index"
+      hash_key        = "documento"  
+      projection_type = "ALL"  
+    }
+
 }
+  

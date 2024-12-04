@@ -55,3 +55,9 @@ variable "eks_node_group_role_arn" {
   description = "The ARN of the EKS node group role"
   type        = string
 }
+
+variable "cluster_ar" {
+  "description" = "The ARN of the cluster"
+  "type" = string
+  "default" = "arn:aws:iam::<ACCOUNT>:role/eks-cluster-role"
+}

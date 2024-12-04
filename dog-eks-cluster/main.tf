@@ -208,7 +208,7 @@ resource "kubernetes_service_account" "dog-service-account" {
     name      = "dog-service-account"
     namespace = "default"
     annotations = {
-      "eks.amazonaws.com/role-arn" = "arn:aws:iam::764549915701:role/eks-cluster-role"
+      "eks.amazonaws.com/role-arn" = var.cluster_arn
     }
   }
 }

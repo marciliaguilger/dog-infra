@@ -1,4 +1,4 @@
-AWS_PROFILE="pos"
+AWS_PROFILE="dog"
 
 # Diretório onde os arquivos de configuração do Terraform estão localizados
 TERRAFORM_DIR="/home/marciliadasilvaguilguer/Documentos/repos/pos-tech/fase3/dog-infra/dog-infra/dog-eks-cluster"
