@@ -2,6 +2,12 @@ provider "aws" {
   region  = var.aws_region
   profile = var.aws_profile
 }
+
+# Variável para principal ARN
+variable "principalArn" {
+  default = "arn:aws:iam::aws:policy/AdministratorAccess"
+}
+
 # Criar a VPC
 resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
@@ -120,73 +126,35 @@ resource "aws_route" "private_nat_gateway" {
 }
 
 
-# Criar Subnet Group para RDS
-resource "aws_db_subnet_group" "rds_subnet_group" {
-  name       = "rds-subnet-group"
-  subnet_ids = [
-    aws_subnet.private_a.id,
-    aws_subnet.private_b.id
-  ]
 
-  tags = {
-    Name = "rds-subnet-group"
-  }
-}
-
-# Criar Security Group para RDS
-resource "aws_security_group" "rds_sg" {
-  vpc_id = aws_vpc.main.id
-
-  ingress {
-    from_port   = 3306            # Porta padrão do MySQL
-    to_port     = 3306
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr] # Permite comunicação de toda a VPC
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "rds-security-group"
-  }
-}
-
-resource "aws_iam_role_policy_attachment" "eks_policy" {
-  role       = "eks-cluster-role"
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-}
 resource "aws_eks_cluster" "dog_development" {
   name     = "dog-eks-cluster"
-  role_arn = var.eks_cluster_role_arn
+  role_arn = var.lab_role
   vpc_config {
     subnet_ids = [aws_subnet.public_a.id, aws_subnet.public_b.id, aws_subnet.private_a.id,aws_subnet.private_b.id]
   }
 }
-resource "aws_iam_role_policy_attachment" "node_group_policy" {
-  role       = "eks-node-group-role"
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-}
-resource "aws_iam_role_policy_attachment" "cni_policy" {
-  role       = "eks-node-group-role"
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-}
-resource "aws_iam_role_policy_attachment" "registry_policy" {
-  role       = "eks-node-group-role"
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-}
+
+#resource "aws_iam_role_policy_attachment" "node_group_policy" {
+#  role       = "eks-node-group-role"
+#  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+#}
+#resource "aws_iam_role_policy_attachment" "cni_policy" {
+#  role       = "eks-node-group-role"
+#  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+#}
+#resource "aws_iam_role_policy_attachment" "registry_policy" {
+#  role       = "eks-node-group-role"
+#  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+#}
 resource "aws_eks_node_group" "dog_node_group" {
   cluster_name    = aws_eks_cluster.dog_development.name
   node_group_name = "dog-node-group"
-  node_role_arn   = var.eks_node_group_role_arn
+  node_role_arn   = var.lab_role
   subnet_ids      = [aws_subnet.private_a.id,aws_subnet.private_b.id,aws_subnet.public_a.id,aws_subnet.public_b.id]
   scaling_config {
     desired_size = 1
-    max_size     = 2
+    max_size     = 10
     min_size     = 1
   }
   instance_types = ["t3.medium"]
@@ -208,69 +176,70 @@ resource "kubernetes_service_account" "dog-service-account" {
     name      = "dog-service-account"
     namespace = "default"
     annotations = {
-      "eks.amazonaws.com/role-arn" = var.cluster_arn
-    }
+        "eks.amazonaws.com/role-arn" = "arn:aws:iam::781073238785:role/LabRole"
+      }
   }
 }
 
-resource "aws_iam_policy" "eks_load_balancer_policy" {
-  name        = "EKSLoadBalancerPolicy"
-  description = "Permissões necessárias para criar LoadBalancers no EKS"
 
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Action = [
-          "ec2:DescribeSubnets",
-          "ec2:DescribeSecurityGroups",
-          "ec2:DescribeVpcs",
-          "ec2:CreateSecurityGroup",
-          "ec2:CreateTags",
-          "ec2:AuthorizeSecurityGroupIngress",
-          "ec2:AuthorizeSecurityGroupEgress",
-          "ec2:RevokeSecurityGroupIngress",
-          "ec2:RevokeSecurityGroupEgress",
-          "elasticloadbalancing:CreateLoadBalancer",
-          "elasticloadbalancing:CreateTargetGroup",
-          "elasticloadbalancing:DescribeLoadBalancers",
-          "elasticloadbalancing:DescribeTargetGroups",
-          "elasticloadbalancing:DescribeListeners",
-          "elasticloadbalancing:CreateListener",
-          "elasticloadbalancing:DeleteListener",
-          "elasticloadbalancing:DeleteLoadBalancer",
-          "elasticloadbalancing:DeleteTargetGroup",
-          "elasticloadbalancing:ModifyLoadBalancerAttributes",
-          "elasticloadbalancing:ModifyTargetGroup",
-          "elasticloadbalancing:ModifyTargetGroupAttributes",
-          "elasticloadbalancing:RegisterTargets",
-          "elasticloadbalancing:DeregisterTargets"
-        ],
-        Resource = "*"
-      }
-    ]
-  })
-}
+#resource "aws_iam_policy" "eks_load_balancer_policy" {
+#  name        = "EKSLoadBalancerPolicy"
+#  description = "Permissões necessárias para criar LoadBalancers no EKS"
+#
+#  policy = jsonencode({
+#    Version = "2012-10-17",
+#    Statement = [
+#      {
+#        Effect = "Allow",
+#        Action = [
+#          "ec2:DescribeSubnets",
+#          "ec2:DescribeSecurityGroups",
+#          "ec2:DescribeVpcs",
+#          "ec2:CreateSecurityGroup",
+#          "ec2:CreateTags",
+#          "ec2:AuthorizeSecurityGroupIngress",
+#          "ec2:AuthorizeSecurityGroupEgress",
+#          "ec2:RevokeSecurityGroupIngress",
+#          "ec2:RevokeSecurityGroupEgress",
+#          "elasticloadbalancing:CreateLoadBalancer",
+#          "elasticloadbalancing:CreateTargetGroup",
+#          "elasticloadbalancing:DescribeLoadBalancers",
+#          "elasticloadbalancing:DescribeTargetGroups",
+#          "elasticloadbalancing:DescribeListeners",
+#          "elasticloadbalancing:CreateListener",
+#          "elasticloadbalancing:DeleteListener",
+#          "elasticloadbalancing:DeleteLoadBalancer",
+#          "elasticloadbalancing:DeleteTargetGroup",
+#          "elasticloadbalancing:ModifyLoadBalancerAttributes",
+#          "elasticloadbalancing:ModifyTargetGroup",
+#          "elasticloadbalancing:ModifyTargetGroupAttributes",
+#          "elasticloadbalancing:RegisterTargets",
+#          "elasticloadbalancing:DeregisterTargets"
+#        ],
+#        Resource = "*"
+#      }
+#    ]
+#  })
+#}
 
-resource "aws_iam_role" "eks_role" {
-  name = "EKSRole"
+#resource "aws_iam_role" "eks_role" {
+#  name = "EKSRole"
+#
+#  assume_role_policy = jsonencode({
+#    Version = "2012-10-17",
+#    Statement = [
+#      {
+#        Effect = "Allow",
+#        Principal = {
+#          Service = "eks.amazonaws.com"
+#        },
+#        Action = "sts:AssumeRole"
+#      }
+#    ]
+#  })
+#}
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Principal = {
-          Service = "eks.amazonaws.com"
-        },
-        Action = "sts:AssumeRole"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "eks_role_policy_attachment" {
-  role       = aws_iam_role.eks_role.name
-  policy_arn = aws_iam_policy.eks_load_balancer_policy.arn
-}
+#resource "aws_iam_role_policy_attachment" "eks_role_policy_attachment" {
+#  role       = aws_iam_role.eks_role.name
+#  policy_arn = aws_iam_policy.eks_load_balancer_policy.arn
+#}
